@@ -82,16 +82,27 @@ exports.records = async (req, res) => {
     let bptConditions = [];
 
     if (restaurantName) {
-      bptConditions.push("LOWER(REPLACE(`Restaurant Name`, '''', '')) = ?");
-      bptParams.push(
-        restaurantName.toLowerCase()
-      );
-    }
+  bptConditions.push(`
+    LOWER(
+      REGEXP_REPLACE(
+        REPLACE(\`Restaurant Name\`, '''', ''),
+        '[^a-zA-Z0-9]',
+        ''
+      )
+    ) = ?
+  `);
 
-    if (airportName) {
-      bptConditions.push("`Airport Name` = ?");
-      bptParams.push(airportName);
-    }
+  bptParams.push(
+    restaurantName
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '')
+  );
+}
+
+    // if (airportName) {
+    //   bptConditions.push("`Airport Name` = ?");
+    //   bptParams.push(airportName);
+    // }
 
     if (bptConditions.length) {
       bptQuery +=

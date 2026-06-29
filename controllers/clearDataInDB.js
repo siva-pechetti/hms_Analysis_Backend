@@ -84,7 +84,7 @@ exports.deleteQRDataInDB = async (req, res) => {
 exports.deleteSnowflakeDataInDB = async (req, res) => {
   try {
     let businessUnits = req.body.businessunit;
-
+    let periodNum=req.body.periodNum;
     // normalize input
     if (!businessUnits) {
       return res.status(400).json({ message: "businessUnit is required" });
@@ -106,6 +106,7 @@ exports.deleteSnowflakeDataInDB = async (req, res) => {
       DELETE FROM snowflake_data
       WHERE BUSINESS_UNIT_NAME IN (?)
     `;
+    
 
     await db.query(query, [businessUnits]);
 

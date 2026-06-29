@@ -1,6 +1,8 @@
 const bcrypt = require("bcrypt");
 const db = require("../config/db");
 require("dotenv").config();
+const crypto = require("crypto");
+const { sendResetEmail } = require("../services/emailService");
 
 exports.signUp = async (req, res) => {
   const { username, email, password } = req.body;
@@ -69,3 +71,30 @@ exports.login = async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 };
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const [users] = await db.execute("select * from users where email =?", [email]);
+    if (!users.length) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiry = DataTransfer.now() + 15 * 60 * 1000;
+    await db.execute(`update users set reset_token=?,reset_token_expiry=? where email= ?`, [token, expiry, email]);
+    const resetLink = `http://localhost:5173/reset-password/${token}`;
+    res.json({
+      message: "Reset link sent",
+    });
+ }
+ catch(error){
+  console.log(error);
+  res.status(500).json({
+    message:"server error"
+  })
+ }
+}
+
+

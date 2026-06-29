@@ -363,11 +363,12 @@ exports.getBusinessUnitCount = async (req, res) => {
     const [rows] = await db.query(`
       SELECT 
         BUSINESS_UNIT_NAME,
+        PERIOD_NUM,
         COUNT(*) AS total
       FROM snowflake_data
       WHERE BUSINESS_UNIT_NAME IS NOT NULL
-      GROUP BY BUSINESS_UNIT_NAME
-      ORDER BY BUSINESS_UNIT_NAME
+      GROUP BY BUSINESS_UNIT_NAME, PERIOD_NUM
+      ORDER BY BUSINESS_UNIT_NAME, PERIOD_NUM
     `);
 
     res.status(200).json({
